@@ -6,7 +6,6 @@ const pool = new Pool({
   connectionString: process.env.XATA_DATABASE_URL,
   max: 20,
 });
-await pool.connect();
 export const db = drizzle(pool, {
   schema: {
     Invoices,

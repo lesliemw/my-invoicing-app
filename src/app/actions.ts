@@ -11,7 +11,7 @@ export async function createAction(formData: FormData) {
   const results = await db
     .insert(Invoices)
     .values({
-      id: Math.floor(Math.random() * 1000000),
+      id: Math.floor(Math.random() * 2000),
       value,
       description,
       status: "open",
@@ -19,5 +19,4 @@ export async function createAction(formData: FormData) {
     .returning({ id: Invoices.id });
 
   redirect(`/invoices/${results[0].id}`);
-  results[0].id;
 }

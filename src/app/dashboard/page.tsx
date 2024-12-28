@@ -12,67 +12,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CirclePlus } from "lucide-react";
 import Link from "next/link";
+import { db } from "@/db";
+import { Invoices } from "@/db/schema";
+import { cn } from "@/lib/utils";
 
-const invoices = [
-  {
-    invoice: "INV001",
-    customer: "John Doe",
-    email: "example@email.com",
-    paymentStatus: "Paid",
-    totalAmount: "$250.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV002",
-    customer: "John Doe",
-    email: "example@email.com",
-    paymentStatus: "Pending",
-    totalAmount: "$150.00",
-    paymentMethod: "PayPal",
-  },
-  {
-    invoice: "INV003",
-    customer: "John Doe",
-    email: "example@email.com",
-    paymentStatus: "Unpaid",
-    totalAmount: "$350.00",
-    paymentMethod: "Bank Transfer",
-  },
-  {
-    invoice: "INV004",
-    customer: "John Doe",
-    email: "example@email.com",
-    paymentStatus: "Paid",
-    totalAmount: "$450.00",
-    paymentMethod: "Credit Card",
-  },
-  {
-    invoice: "INV005",
-    customer: "John Doe",
-    email: "example@email.com",
-    paymentStatus: "Paid",
-    totalAmount: "$550.00",
-    paymentMethod: "PayPal",
-  },
-  {
-    invoice: "INV006",
-    customer: "John Doe",
-    email: "example@email.com",
-    paymentStatus: "Pending",
-    totalAmount: "$200.00",
-    paymentMethod: "Bank Transfer",
-  },
-  {
-    invoice: "INV007",
-    customer: "John Doe",
-    email: "example@email.com",
-    paymentStatus: "Unpaid",
-    totalAmount: "$300.00",
-    paymentMethod: "Credit Card",
-  },
-];
-
-export default function Home() {
+export default async function Home() {
+  const results = await db.select().from(Invoices).execute();
   return (
     <main className="max-w-5xl mx-auto flex flex-col justify-center h-full text-center gap-6 my-12">
       <div className=" flex justify-between">
@@ -98,31 +43,58 @@ export default function Home() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {invoices.map((invoice) => (
-            <TableRow className="text-left font-semibold" key={invoice.invoice}>
-              <TableCell className="p-4">
-                <span>{invoice.invoice}</span>
+          {results.map((result) => (
+            <TableRow className="text-left font-semibold" key={result.id}>
+              <TableCell>
+                <Link className="p-2 block" href={`/invoices/${result.id}`}>
+                  {new Date(result.createTs).toLocaleDateString()}
+                </Link>
               </TableCell>
 
-              <TableCell className="p-4">
-                <span>{invoice.customer}</span>
+              <TableCell>
+                <Link className="p-2 block" href={`/invoices/${result.id}`}>
+                  Leslie Kavanagh
+                </Link>
               </TableCell>
-              <TableCell className="p-4">
-                <span className="font-extralight">{invoice.email}</span>
+              <TableCell>
+                <Link
+                  href={`/invoices/${result.id}`}
+                  className="font-extralight p-2 block"
+                >
+                  l.marie1598@gmail.com
+                </Link>
               </TableCell>
-              <TableCell className="p-4">
-                <Badge className="rounded-full">{invoice.paymentStatus}</Badge>
+              <TableCell>
+                <Link className="p-2 block" href={`/invoices/${result.id}`}>
+                  <Badge
+                    className={cn(
+                      "rounded-full capitalize",
+                      result.status === "open" && "bg-blue-600",
+                      result.status === "paid" && "bg-green-600",
+                      result.status === "void" && "bg-gray-600",
+                      result.status === "uncollectible" && "bg-red-600"
+                    )}
+                  >
+                    {result.status}
+                  </Badge>
+                </Link>
               </TableCell>
-              <TableCell className="text-right p-4">
-                <span>{invoice.totalAmount}</span>
+              <TableCell className="text-right">
+                <Link className="p-3 block" href={`/invoices/${result.id}`}>
+                  € {""}
+                  {(result.value / 100).toFixed(2)}
+                </Link>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={4}>Total</TableCell>
-            <TableCell className="text-right">$2,500.00</TableCell>
+            <TableCell className="text-right" colSpan={45}>
+              <span>Total</span>
+              {""}
+              <span>$2,500.00</span>
+            </TableCell>
           </TableRow>
         </TableFooter>
       </Table>
